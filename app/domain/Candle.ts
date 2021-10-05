@@ -1,14 +1,10 @@
 export class Candle {
-    openPrice: Number
-    high: Number
-    low: Number
-    closePrice: Date
-    volumeOffered: Number
-    operatedVolume: Number
+    openPrice: number
+    highPrice: number
+    lowPrice: number
+    closePrice: number
+    volumeOffered: number
+    operatedVolume: number
     startTime: Date
     endTime: Date
-
-    async isAfter(other: Candle) {
-
-    }
 } 
