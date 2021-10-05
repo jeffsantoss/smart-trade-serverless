@@ -1,0 +1,54 @@
+service: smart-trade
+
+custom:
+  #secrets: ${ssm:/aws/reference/secretsmanager/${opt:stage, "dev"}/smart-trade/~true}      
+  smartTradeSetupTable: ${opt:stage, "dev"}-smart-trade-setup
+
+provider:
+  environment:
+    NODE_ENV: ${sls:stage}
+    SMART_TRADE_SETUP_TABLE: ${self:custom.smartTradeSetupTable}
+  name: aws
+  runtime: nodejs12.x  
+  memorySize: 256
+  tracing:
+    apiGateway: true
+    lambda: true  
+  resourcePolicy:
+    - Effect: Allow
+      Principal: "*"
+      Action: execute-api:Invoke
+      Resource:
+        - !Sub arn:aws:execute-api:us-east-1:${AWS::AccountId}:*/dev/*
+
+plugins:
+  - serverless-plugin-typescript 
+  # - serverless-plugin-lambda-dead-letter
+  - serverless-offline
+  - serverless-iam-roles-per-function
+
+functions:
+  trend:
+    handler: app/handler.setupCreator
+    name: ${sls:stage}-smart-trade-setup
+    description: Create a Setup
+    iamRoleStatements: 
+      - Effect: "Allow"
+        Action:
+          - dynamodb:PutItem
+        Resource:  !GetAtt assetTrend.Arn
+resources:
+  Resources:    
+    assetTrend:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.smartTradeSetupTable}
