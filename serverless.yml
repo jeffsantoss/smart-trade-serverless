@@ -8,6 +8,7 @@ provider:
   environment:
     NODE_ENV: ${sls:stage}
     SMART_TRADE_SETUP_TABLE: ${self:custom.smartTradeSetupTable}
+    BINANCE_URL: https://api3.binance.com/api/v3/
   name: aws
   runtime: nodejs12.x  
   memorySize: 256

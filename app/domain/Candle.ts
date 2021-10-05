@@ -7,4 +7,8 @@ export class Candle {
     operatedVolume: Number
     startTime: Date
     endTime: Date
-}
+
+    async isAfter(other: Candle) {
+
+    }
+} 

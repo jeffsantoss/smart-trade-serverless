@@ -6,5 +6,5 @@ export class Utils {
             result += randomChars.charAt(Math.floor(Math.random() * randomChars.length));
         }
         return result;
-    }
+    }    
 }
