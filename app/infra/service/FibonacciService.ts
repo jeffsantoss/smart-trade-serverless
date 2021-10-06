@@ -1,11 +1,16 @@
 import { Service } from "typedi"
 import { FibonacciLevel } from "../../domain/enums/FibonacciLevel"
+import { OperationType } from "../../domain/enums/OperationType"
 import { FibonacciValue } from "../../domain/vo/FibonacciValue"
 
 @Service()
 export class FibonacciService {
 
-    async calculateRetracementValues(high: number, low: number): Promise<FibonacciValue[]> {
+    async calculateRetracementValues(operation: OperationType, high: number, low: number): Promise<FibonacciValue[]> {
+        if(operation == OperationType.BUY){ 
+           [high, low] = [low, high]
+        }
+
         const difference = high - low
         
         return [
@@ -40,7 +45,11 @@ export class FibonacciService {
         ]
     }
 
-    async calculateExtensionsValue(high: number, low: number): Promise<FibonacciValue[]> {
+    async calculateExtensionsValue(operation: OperationType, high: number, low: number): Promise<FibonacciValue[]> {
+        if(operation == OperationType.BUY){ 
+            [high, low] = [low, high]
+         }
+
         const difference = high - low
         
         return [

@@ -26,19 +26,18 @@ export class SetupCreatorUseCase {
   async create(request: SetupRequest) {
     console.log(`Request: ${JSON.stringify(request)}`)
 
-    const graphic = {
-      candles: await this.candleService.find({
-        asset: request.asset,
-        interval: request.interval,
-        startTime: request.candleToStart,
-        limit: 100
-      })
-    } as Graphic
+    const graphic = new Graphic(await this.candleService.find({
+      asset: request.asset,
+      interval: request.interval,
+      startTime: request.candleToStart,
+      limit: 100
+    }))     
 
     const maxCandle = graphic.getMaxCandle()
     const minCandle = graphic.getMinCandle()
-    const fiboRetracements = this.fibonacciService.calculateRetracementValues(maxCandle.highPrice, minCandle.lowPrice)
-    const fiboExtensions = this.fibonacciService.calculateExtensionsValue(maxCandle.highPrice, minCandle.lowPrice)
+    const operation = graphic.getAtualOperation()
+    const fiboRetracements = this.fibonacciService.calculateRetracementValues(operation, maxCandle.highPrice, minCandle.lowPrice)
+    const fiboExtensions = this.fibonacciService.calculateExtensionsValue(operation, maxCandle.highPrice, minCandle.lowPrice)
 
     const setup = await this.setupRepository.create({
       id: uuidv4(),
@@ -46,7 +45,7 @@ export class SetupCreatorUseCase {
       breakupAnyFib: false,
       correctionAnyFib: false,
       status: Status.RUNNING,
-      operation: graphic.getAtualOperation(),
+      operation: operation,
       asset: request.asset,
       candleMax: maxCandle,
       candleMin: minCandle,

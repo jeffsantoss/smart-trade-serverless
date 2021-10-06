@@ -4,6 +4,10 @@ import { OperationType } from "./enums/OperationType";
 export class Graphic {
     candles: Candle[]
 
+    constructor(candles: Candle[]) {
+        this.candles = candles
+    }
+    
     getAtualOperation(): OperationType {
         return this.getMaxCandle().startTime >= this.getMinCandle().startTime ? OperationType.BUY : OperationType.SELL
     }
