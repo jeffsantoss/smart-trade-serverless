@@ -31,7 +31,7 @@ export class SetupCreatorUseCase {
       interval: request.interval,
       startTime: request.candleToStart,
       limit: 100
-    }))     
+    }))
 
     const maxCandle = graphic.getMaxCandle()
     const minCandle = graphic.getMinCandle()
@@ -39,7 +39,7 @@ export class SetupCreatorUseCase {
     const fiboRetracements = this.fibonacciService.calculateRetracementValues(operation, maxCandle.highPrice, minCandle.lowPrice)
     const fiboExtensions = this.fibonacciService.calculateExtensionsValue(operation, maxCandle.highPrice, minCandle.lowPrice)
 
-    const setup = await this.setupRepository.create({
+    await this.setupRepository.create({
       id: uuidv4(),
       breakup: false,
       breakupAnyFib: false,
@@ -52,7 +52,5 @@ export class SetupCreatorUseCase {
       fiboExtensions: await fiboExtensions,
       fiboRetracements: await fiboRetracements
     })
-
-    this.setupRepository.create(setup)
   }
 }
