@@ -10,6 +10,7 @@ import { CandleService } from '../../infra/service/CandleService';
 import { Graphic } from '../../domain/Graphic';
 import { Interval } from '../../domain/enums/Interval';
 import { FibonacciService } from '../../infra/service/FibonacciService';
+import { Setup } from '../../domain/Setup';
 
 @Service()
 export class SetupCreatorUseCase {
@@ -39,18 +40,6 @@ export class SetupCreatorUseCase {
     const fiboRetracements = this.fibonacciService.calculateRetracementValues(operation, maxCandle.highPrice, minCandle.lowPrice)
     const fiboExtensions = this.fibonacciService.calculateExtensionsValue(operation, maxCandle.highPrice, minCandle.lowPrice)
 
-    await this.setupRepository.create({
-      id: uuidv4(),
-      breakup: false,
-      breakupAnyFib: false,
-      correctionAnyFib: false,
-      status: Status.RUNNING,
-      operation: operation,
-      asset: request.asset,
-      candleMax: maxCandle,
-      candleMin: minCandle,
-      fiboExtensions: await fiboExtensions,
-      fiboRetracements: await fiboRetracements
-    })
+    await this.setupRepository.create(new Setup(uuidv4(), request.asset, request.interval, maxCandle, minCandle, operation, Status.STARTED, false, false, false, false, await fiboRetracements, await fiboExtensions, Date.now()))
   }
 }

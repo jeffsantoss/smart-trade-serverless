@@ -38,6 +38,15 @@ functions:
         Action:
           - dynamodb:PutItem
         Resource:  !GetAtt assetTrend.Arn
+  setupAnalyzer:
+    handler: app/handler.setupUpdate
+    name: ${sls:stage}-smart-trade-setup-analyzer
+    description: Analyze a setup
+    iamRoleStatements: 
+      - Effect: "Allow"
+        Action:
+          - dynamodb:PutItem
+        Resource:  !GetAtt assetTrend.Arn  
 resources:
   Resources:    
     assetTrend:

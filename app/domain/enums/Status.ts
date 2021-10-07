@@ -1,5 +1,6 @@
 export enum Status {
   GAIN,
-  RUNNING,
+  STARTED,
+  IN_OPERATION,
   LOSS
 }
