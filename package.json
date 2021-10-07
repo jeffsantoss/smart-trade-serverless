@@ -16,8 +16,8 @@
   ],
   "dependencies": {
     "aws-sdk": "^2.982.0",
+    "axios": "^0.22.0",
     "dotenv": "^8.2.0",
-    "node-fetch": "^3.0.0",
     "reflect-metadata": "^0.1.13",
     "serverless-plugin-lambda-dead-letter": "^1.2.1",
     "typedi": "^0.10.0",
@@ -29,7 +29,6 @@
     "@types/dotenv-safe": "^8.1.0",
     "@types/lambda-tester": "^3.6.0",
     "@types/mocha": "^7.0.2",
-    "@types/node-fetch": "^3.0.3",
     "@types/sinon": "^9.0.0",
     "@types/supertest": "^2.0.8",
     "chai": "^4.2.0",

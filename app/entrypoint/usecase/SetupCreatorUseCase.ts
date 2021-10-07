@@ -8,9 +8,10 @@ import { v4 as uuidv4 } from 'uuid';
 import 'reflect-metadata';
 import { CandleService } from '../../infra/service/CandleService';
 import { Graphic } from '../../domain/Graphic';
-import { Interval } from '../../domain/enums/Interval';
 import { FibonacciService } from '../../infra/service/FibonacciService';
 import { Setup } from '../../domain/Setup';
+import { FibonacciValue } from '../../domain/vo/FibonacciValue';
+import { FibonacciLevel } from '../../domain/enums/FibonacciLevel';
 
 @Service()
 export class SetupCreatorUseCase {
@@ -37,9 +38,30 @@ export class SetupCreatorUseCase {
     const maxCandle = graphic.getMaxCandle()
     const minCandle = graphic.getMinCandle()
     const operation = graphic.getAtualOperation()
-    const fiboRetracements = this.fibonacciService.calculateRetracementValues(operation, maxCandle.highPrice, minCandle.lowPrice)
-    const fiboExtensions = this.fibonacciService.calculateExtensionsValue(operation, maxCandle.highPrice, minCandle.lowPrice)
+    let fiboRetracements: Promise<FibonacciValue[]>
+    let fiboExtensions: Promise<FibonacciValue[]>
 
-    await this.setupRepository.create(new Setup(uuidv4(), request.asset, request.interval, maxCandle, minCandle, operation, Status.STARTED, false, false, false, false, await fiboRetracements, await fiboExtensions, Date.now()))
+    if (operation == OperationType.BUY) {
+      fiboRetracements = this.fibonacciService.calculateRetracementValues(minCandle.lowPrice, maxCandle.highPrice)
+      fiboExtensions = this.fibonacciService.calculateExtensionsValue(maxCandle.highPrice, minCandle.lowPrice)
+    } else {
+      fiboRetracements = this.fibonacciService.calculateRetracementValues(maxCandle.highPrice, minCandle.lowPrice)
+      fiboExtensions = this.fibonacciService.calculateExtensionsValue(minCandle.lowPrice, maxCandle.highPrice)
+    }    
+
+    const setupToCreate = new Setup(uuidv4(), request.asset, request.interval, maxCandle, minCandle, operation, Status.STARTED, false, false, false, false, await fiboRetracements, await fiboExtensions, Date.now())
+
+    await this.calculateRetroactively(graphic, setupToCreate)
+
+    await this.setupRepository.create(setupToCreate)
+  }
+
+  private async calculateRetroactively(graphic: Graphic, setup: Setup) {
+    const allAfter = graphic.getAllAfterMaxOrMinCandleAccordingTheOperation(setup.operation)
+
+    Promise.all(allAfter.map(c => {
+      setup.analyze(FibonacciLevel._0236, FibonacciLevel._050, c)
+      setup.analyze(FibonacciLevel._0236, FibonacciLevel._050, c)
+    }))
   }
 }

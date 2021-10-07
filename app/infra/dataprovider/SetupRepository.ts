@@ -22,7 +22,7 @@ export class SetupRepository {
   async findMostRecentStartedOrInOperation(): Promise<Setup> {
     const params = {
       TableName: process.env.SMART_TRADE_SETUP_TABLE,
-      KeyConditionExpression: "#status = :started or #status = :in_operation",
+      FilterExpression: "#status = :started OR #status = :in_operation",
       ExpressionAttributeNames: {
         "#status": "status"
       },
@@ -32,7 +32,9 @@ export class SetupRepository {
       },
     };
 
-    const itens = (await this.getDynamoClient().query(params).promise()).Items
+    const itens = (await this.getDynamoClient().scan(params).promise()).Items
+
+    console.log(`Itens encontrados com status ${Status.STARTED} e ${Status.IN_OPERATION}: ${JSON.stringify(itens)}`)
 
     const mostRecent = itens.reduce((a, b) => {
       return new Date(a.createdAt) > new Date(b.createdAt) ? a : b;
@@ -40,7 +42,9 @@ export class SetupRepository {
 
     console.log(`Último Setup encontrado: ${JSON.stringify(mostRecent)}`)
 
-    return JSON.parse(JSON.stringify(mostRecent))
+    const json: Setup = JSON.parse(JSON.stringify(mostRecent))
+
+    return new Setup(json.id, json.asset, json.interval, json.candleMax, json.candleMin, json.operation, json.status, json.breakup, json.corrected, json.breakupAnyFib, json.correctionAnyFib, json.fiboRetracements, json.fiboExtensions, json.createdAt)
   }
 
   async update(entity: Setup) {

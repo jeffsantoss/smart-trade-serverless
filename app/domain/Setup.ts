@@ -22,42 +22,41 @@ export class Setup {
     fiboRetracements: FibonacciValue[]
     fiboExtensions: FibonacciValue[]
     createdAt: number
+    candleEvent: Candle
 
+    constructor(
+        id: string,
+        asset: Asset,
+        interval: Interval,
+        candleMax: Candle,
+        candleMin: Candle,
+        operation: OperationType,
+        status: Status,
+        breakup: boolean,
+        corrected: boolean,
+        breakupAnyFib: boolean,
+        correctionAnyFib: boolean,
+        fiboRetracements: FibonacciValue[],
+        fiboExtensions: FibonacciValue[],
+        createdAt: number
+    ) {
+        this.id = id
+        this.asset = asset
+        this.interval = interval
+        this.candleMax = candleMax
+        this.candleMin = candleMin
+        this.operation = operation
+        this.status = status
+        this.breakup = breakup
+        this.corrected = corrected
+        this.breakupAnyFib = breakupAnyFib
+        this.correctionAnyFib = correctionAnyFib
+        this.fiboRetracements = fiboRetracements
+        this.fiboExtensions = fiboExtensions
+        this.createdAt = createdAt
+    }
 
-
-  constructor(
-    id: string , 
-    asset: Asset, 
-    interval: Interval, 
-    candleMax: Candle, 
-    candleMin: Candle, 
-    operation: OperationType, 
-    status: Status, 
-    breakup: boolean , 
-    corrected: boolean , 
-    breakupAnyFib: boolean , 
-    correctionAnyFib: boolean , 
-    fiboRetracements: FibonacciValue[], 
-    fiboExtensions: FibonacciValue[], 
-    createdAt: number
-) {
-    this.id = id
-    this.asset = asset
-    this.interval = interval
-    this.candleMax = candleMax
-    this.candleMin = candleMin
-    this.operation = operation
-    this.status = status
-    this.breakup = breakup
-    this.corrected = corrected
-    this.breakupAnyFib = breakupAnyFib
-    this.correctionAnyFib = correctionAnyFib
-    this.fiboRetracements = fiboRetracements
-    this.fiboExtensions = fiboExtensions
-    this.createdAt = createdAt
-  }
-   
-    public gainOrLossOrNothing(extensionLevelGain: FibonacciLevel, fibLevelLoss: FibonacciLevel, actualPrice: number) {
+    gainOrLossOrNothing(extensionLevelGain: FibonacciLevel, fibLevelLoss: FibonacciLevel, actualPrice: number) {
         const fibValueGain = this.fiboExtensions.find(f => f.level == extensionLevelGain).value
         const fibValueLoss = this.fiboRetracements.find(f => f.level == fibLevelLoss).value
 
@@ -82,21 +81,61 @@ export class Setup {
         }
     }
 
-    public breakupOnFibLevel(level: FibonacciLevel, currentPrice: number): Boolean {
+    private breakupOnFibLevel(level: FibonacciLevel, candle: Candle): Boolean {
+        const fibValue = this.fiboRetracements.find(f => f.level == level).value
+
         if (this.operation == OperationType.BUY) {
-            return currentPrice <= this.fiboRetracements.find(f => f.level == level).value
+            return candle.actualPrice <= fibValue || candle.lowPrice <= fibValue
         }
 
-        return currentPrice >= this.fiboRetracements.find(f => f.level == level).value
+        return candle.actualPrice >= fibValue || candle.highPrice >= fibValue
     }
 
-    public correctedOnFibLevel(level: FibonacciLevel, currentPrice: number): Boolean {
+    private correctedOnFibLevel(level: FibonacciLevel, candle: Candle): Boolean {
+        const fibValue = this.fiboRetracements.find(f => f.level == level).value
+
         if (this.breakup) {
             if (this.operation == OperationType.BUY) {
-                return currentPrice >= this.fiboRetracements.find(f => f.level == level).value
+                return candle.actualPrice >= fibValue || candle.highPrice >= fibValue
             }
 
-            return currentPrice <= this.fiboRetracements.find(f => f.level == level).value
+            return candle.actualPrice <= fibValue || candle.lowPrice <= fibValue
+        }
+    }
+
+    async analyze(firstLevel: FibonacciLevel, operationLevel: FibonacciLevel, actualCandle: Candle) {
+        if (this.candleEvent && !this.candleEvent.finished()) {
+            console.log("O último candle que ocorreu um evento ainda não foi finalizado.")
+            return
+        }
+
+        if (this.breakupOnFibLevel(firstLevel, actualCandle)) {
+            console.log(`Candle ${JSON.stringify(actualCandle)} rompeu a fib no nível ${firstLevel} | ${this.fiboRetracements.find(v => v.level == firstLevel).value} para operação de ${this.operation}`)
+
+            this.breakupAnyFib = true
+            this.candleEvent = actualCandle
+        } 
+        
+        else if (this.correctedOnFibLevel(firstLevel, actualCandle)) {
+            console.log(`Candle ${JSON.stringify(actualCandle)} corrigiu a fib no nível ${firstLevel} | ${this.fiboRetracements.find(v => v.level == firstLevel).value} para operação de ${this.operation}`)
+            this.correctionAnyFib = true
+            this.candleEvent = actualCandle
+        } 
+        
+        else if (this.breakupOnFibLevel(operationLevel, actualCandle)) {
+            console.log(`Candle ${JSON.stringify(actualCandle)} rompeu a fib no nível ${operationLevel} | ${this.fiboRetracements.find(v => v.level == operationLevel).value} para operação de ${this.operation}`)
+            this.breakup = true
+            this.candleEvent = actualCandle
+        }
+
+        else if (this.correctedOnFibLevel(operationLevel, actualCandle)) {
+            console.log(`Candle ${JSON.stringify(actualCandle)} corrigu a fib no nível ${operationLevel} | ${this.fiboRetracements.find(v => v.level == operationLevel).value} para operação de ${this.operation}`)
+            this.corrected = true
+            this.candleEvent = actualCandle
+        } 
+        
+        else {
+            console.log("Nenhum evento com os valores de fibonacci")
         }
     }
 

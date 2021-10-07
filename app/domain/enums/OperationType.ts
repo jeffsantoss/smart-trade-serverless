@@ -1,4 +1,4 @@
 export enum OperationType {
-  BUY,
-  SELL
+  BUY = "COMPRA",
+  SELL = "VENDA"
 }

@@ -46,6 +46,7 @@ functions:
       - Effect: "Allow"
         Action:
           - dynamodb:PutItem
+          - dynamodb:Scan
         Resource:  !GetAtt assetTrend.Arn  
 resources:
   Resources:    

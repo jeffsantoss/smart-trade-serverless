@@ -7,6 +7,12 @@ export class Graphic {
     constructor(candles: Candle[]) {
         this.candles = candles
     }
+
+    getAllAfterMaxOrMinCandleAccordingTheOperation(operation : OperationType): Candle[] {
+        const maxOrMinCandle = operation == OperationType.BUY ? this.getMaxCandle() : this.getMinCandle()
+
+        return this.candles.filter(c => c.startTime >= maxOrMinCandle.endTime)
+    }
     
     getAtualOperation(): OperationType {
         return this.getMaxCandle().startTime >= this.getMinCandle().startTime ? OperationType.BUY : OperationType.SELL
