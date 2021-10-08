@@ -56,7 +56,7 @@ export class Setup {
         this.createdAt = createdAt
     }
 
-    ocurredGainOrLos(extensionLevelGain: FibonacciLevel, fibLevelLoss: FibonacciLevel, actualPrice: number) {
+    ocurredGainOrLoss(extensionLevelGain: FibonacciLevel, fibLevelLoss: FibonacciLevel, actualPrice: number) : boolean {
         const fibValueGain = this.fiboExtensions.find(f => f.level == extensionLevelGain).value
         const fibValueLoss = this.fiboRetracements.find(f => f.level == fibLevelLoss).value
 
@@ -107,7 +107,7 @@ export class Setup {
         }
     }
 
-    async occurredEventOnFib(firstLevel: FibonacciLevel, operationLevel: FibonacciLevel, actualCandle: Candle) {
+     occurredEventOnFib(firstLevel: FibonacciLevel, operationLevel: FibonacciLevel, actualCandle: Candle) : boolean {
         if (this.candleEvent && !this.candleEvent.finished()) {
             console.log("O último candle que ocorreu um evento ainda não foi finalizado.")
             return false

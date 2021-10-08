@@ -7,6 +7,7 @@ import { FibonacciLevel } from '../../domain/enums/FibonacciLevel';
 import { SetupCreatorUseCase } from './SetupCreatorUseCase';
 import { OperationType } from '../../domain/enums/OperationType';
 import { CandleService } from '../../infra/service/CandleService';
+import { Asset } from '../../domain/enums/Asset';
 
 @Service()
 export class SetupUpdaterUseCase {
@@ -25,8 +26,8 @@ export class SetupUpdaterUseCase {
   private readonly FIB_LEVEL_OPERATE = FibonacciLevel._050
   private readonly FIB_FIRST_LEVEL = FibonacciLevel._0236
 
-  async update() {
-    const mostRecentSetup = await this.setupRepository.findMostRecentStartedOrInOperation()
+  async update(asset: Asset) {
+    const mostRecentSetup = await this.setupRepository.findMostRecentStartedOrInOperation(asset)
 
     if (!mostRecentSetup)
       throw Error(`Não foi encontrado nenhum setup com status ${Status.STARTED} ou ${Status.IN_OPERATION}`)

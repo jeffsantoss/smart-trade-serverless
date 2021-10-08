@@ -19,5 +19,5 @@ export const setupUpdate: Handler = (event: any, context: Context) => {
   console.log(`Function Name: ${context.functionName}`)
   console.log(`Event: ${JSON.stringify(event)}`)
 
-  return setupUpdaterUseCase.update()
+  return setupUpdaterUseCase.update(event.asset)
 };

@@ -2,6 +2,7 @@ import { Service } from 'typedi';
 import AWS from 'aws-sdk';
 import { Setup } from '../../domain/Setup';
 import { Status } from '../../domain/enums/Status';
+import { Asset } from '../../domain/enums/Asset';
 
 @Service()
 export class SetupRepository {
@@ -19,16 +20,18 @@ export class SetupRepository {
     return entity
   }
 
-  async findMostRecentStartedOrInOperation(): Promise<Setup> {
+  async findMostRecentStartedOrInOperation(asset: Asset): Promise<Setup> {
     const params = {
       TableName: process.env.SMART_TRADE_SETUP_TABLE,
-      FilterExpression: "#status = :started OR #status = :in_operation",
+      FilterExpression: "#status = :started OR #status = :in_operation AND #asset = :asset",
       ExpressionAttributeNames: {
-        "#status": "status"
+        "#status": "status",
+        "#asset": "asset"
       },
       ExpressionAttributeValues: {
         ":started": Status.STARTED,
-        ":in_operation": Status.IN_OPERATION
+        ":in_operation": Status.IN_OPERATION,
+        ":asset": asset
       },
     };
 
