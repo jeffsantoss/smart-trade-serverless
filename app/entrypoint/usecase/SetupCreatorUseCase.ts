@@ -60,8 +60,8 @@ export class SetupCreatorUseCase {
     const allAfter = graphic.getAllAfterMaxOrMinCandleAccordingTheOperation(setup.operation)
 
     Promise.all(allAfter.map(c => {
-      setup.analyze(FibonacciLevel._0236, FibonacciLevel._050, c)
-      setup.analyze(FibonacciLevel._0236, FibonacciLevel._050, c)
+      setup.occurredEventOnFib(FibonacciLevel._0236, FibonacciLevel._050, c)
+      setup.occurredEventOnFib(FibonacciLevel._0236, FibonacciLevel._050, c)
     }))
   }
 }

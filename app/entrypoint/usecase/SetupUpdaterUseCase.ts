@@ -35,23 +35,30 @@ export class SetupUpdaterUseCase {
 
     console.log(`Candle Atual: ${JSON.stringify(lastCandle)}`)
 
-    mostRecentSetup.gainOrLossOrNothing(this.FIB_EXTENSION_OPERATE, this.FIB_LOSS, lastCandle.actualPrice)
+    const ocurredGainOrLoss = mostRecentSetup.ocurredGainOrLoss(this.FIB_EXTENSION_OPERATE, this.FIB_LOSS, lastCandle.actualPrice)
 
-    if (mostRecentSetup.status == Status.LOSS || mostRecentSetup.status == Status.GAIN) {
+    if (ocurredGainOrLoss) {      
+      this.setupRepository.update(mostRecentSetup)
+
+      //TODO remover esse create e disparar evento para outra função
       this.setupCreatorUseCase.create({
         asset: mostRecentSetup.asset,
         candleToStart: mostRecentSetup.operation == OperationType.BUY ? mostRecentSetup.candleMax.endTime : mostRecentSetup.candleMin.endTime,
         interval: mostRecentSetup.interval
       })
+
       return
     }
 
-    mostRecentSetup.analyze(this.FIB_FIRST_LEVEL, this.FIB_LEVEL_OPERATE, lastCandle)
+    const ocurredEventOnFib = mostRecentSetup.occurredEventOnFib(this.FIB_FIRST_LEVEL, this.FIB_LEVEL_OPERATE, lastCandle)
 
     if (mostRecentSetup.imReadyToOperate()) {
-      // enviar um evento para eventBridge com evento para iniciar operação
+      console.log("Pronto para comprar ou vender!!")
+      // enviar um evento para eventBridge com evento para compra ou venda
     }
 
-    this.setupRepository.update(mostRecentSetup)
+    if (ocurredEventOnFib) {
+      this.setupRepository.update(mostRecentSetup)
+    }
   }
 }
