@@ -8,15 +8,14 @@ import { SetupCreatorUseCase } from './SetupCreatorUseCase';
 import { OperationType } from '../../domain/enums/OperationType';
 import { CandleService } from '../../infra/service/CandleService';
 import { Asset } from '../../domain/enums/Asset';
+import AWS from 'aws-sdk';
+import { Interval } from '../../domain/enums/Interval';
 
 @Service()
 export class SetupUpdaterUseCase {
 
   @Inject()
   private readonly setupRepository: SetupRepository
-
-  @Inject()
-  private readonly setupCreatorUseCase: SetupCreatorUseCase
 
   @Inject()
   private readonly candleService: CandleService
@@ -26,8 +25,8 @@ export class SetupUpdaterUseCase {
   private readonly FIB_LEVEL_OPERATE = FibonacciLevel._050
   private readonly FIB_FIRST_LEVEL = FibonacciLevel._0236
 
-  async update(asset: Asset) {
-    const mostRecentSetup = await this.setupRepository.findMostRecentStartedOrInOperation(asset)
+  async analyze(asset: Asset, interval: Interval) {
+    const mostRecentSetup = await this.setupRepository.findMostRecentStartedOrInOperation(asset, interval)
 
     if (!mostRecentSetup)
       throw Error(`Não foi encontrado nenhum setup com status ${Status.STARTED} ou ${Status.IN_OPERATION}`)
@@ -38,14 +37,24 @@ export class SetupUpdaterUseCase {
 
     const ocurredGainOrLoss = mostRecentSetup.ocurredGainOrLoss(this.FIB_EXTENSION_OPERATE, this.FIB_LOSS, lastCandle.actualPrice)
 
-    if (ocurredGainOrLoss) {      
+    if (ocurredGainOrLoss) {
       this.setupRepository.update(mostRecentSetup)
 
-      //TODO remover esse create e disparar evento para outra função
-      this.setupCreatorUseCase.create({
+      const json = {
         asset: mostRecentSetup.asset,
         candleToStart: mostRecentSetup.operation == OperationType.BUY ? mostRecentSetup.candleMax.endTime : mostRecentSetup.candleMin.endTime,
         interval: mostRecentSetup.interval
+      }
+
+      new AWS.EventBridge().putEvents({
+        Entries: [
+          {
+            EventBusName: process.env.SMART_TRADE_EVENT_BUS,
+            Source: 'setup.update',
+            DetailType: 'operationFinished',
+            Detail: JSON.stringify(json)
+          }
+        ]
       })
 
       return

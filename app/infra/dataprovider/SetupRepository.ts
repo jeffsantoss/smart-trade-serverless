@@ -3,6 +3,7 @@ import AWS from 'aws-sdk';
 import { Setup } from '../../domain/Setup';
 import { Status } from '../../domain/enums/Status';
 import { Asset } from '../../domain/enums/Asset';
+import { Interval } from '../../domain/enums/Interval';
 
 @Service()
 export class SetupRepository {
@@ -20,18 +21,20 @@ export class SetupRepository {
     return entity
   }
 
-  async findMostRecentStartedOrInOperation(asset: Asset): Promise<Setup> {
+  async findMostRecentStartedOrInOperation(asset: Asset, interval: Interval): Promise<Setup> {
     const params = {
       TableName: process.env.SMART_TRADE_SETUP_TABLE,
-      FilterExpression: "#status = :started OR #status = :in_operation AND #asset = :asset",
+      FilterExpression: "#status = :started OR #status = :in_operation AND #asset = :asset AND #interval = :interval",
       ExpressionAttributeNames: {
         "#status": "status",
-        "#asset": "asset"
+        "#asset": "asset",
+        "#interval": "interval"
       },
       ExpressionAttributeValues: {
         ":started": Status.STARTED,
         ":in_operation": Status.IN_OPERATION,
-        ":asset": asset
+        ":asset": asset,
+        ":interval": interval
       },
     };
 

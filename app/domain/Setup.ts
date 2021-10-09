@@ -83,6 +83,8 @@ export class Setup {
             console.log(`Alterando tendência para ${this.operation}!`)
             return true
         }
+
+        return false
     }
 
     private breakupOnFibLevel(level: FibonacciLevel, candle: Candle): Boolean {
@@ -114,7 +116,7 @@ export class Setup {
         }
 
         if (this.breakupOnFibLevel(firstLevel, actualCandle)) {
-            console.log(`Candle ${JSON.stringify(actualCandle)} rompeu a fib no nível ${firstLevel} | ${this.fiboRetracements.find(v => v.level == firstLevel).value} para operação de ${this.operation}`)
+            console.log(`ROMPEU na fib no nível ${firstLevel} | ${this.fiboRetracements.find(v => v.level == firstLevel).value} para operação de ${this.operation} | Candle ${JSON.stringify(actualCandle)} `)
 
             this.breakupAnyFib = true
             this.candleEvent = actualCandle
@@ -122,21 +124,21 @@ export class Setup {
         }
 
         else if (this.correctedOnFibLevel(firstLevel, actualCandle)) {
-            console.log(`Candle ${JSON.stringify(actualCandle)} corrigiu a fib no nível ${firstLevel} | ${this.fiboRetracements.find(v => v.level == firstLevel).value} para operação de ${this.operation}`)
+            console.log(`CORRIGIU na fib no nível ${firstLevel} | ${this.fiboRetracements.find(v => v.level == firstLevel).value} para operação de ${this.operation} | Candle ${JSON.stringify(actualCandle)}`)
             this.correctionAnyFib = true
             this.candleEvent = actualCandle
             return true
         }
 
         else if (this.breakupOnFibLevel(operationLevel, actualCandle)) {
-            console.log(`Candle ${JSON.stringify(actualCandle)} rompeu a fib no nível ${operationLevel} | ${this.fiboRetracements.find(v => v.level == operationLevel).value} para operação de ${this.operation}`)
+            console.log(`ROMPEU ${JSON.stringify(actualCandle)} na fib no nível ${operationLevel} | ${this.fiboRetracements.find(v => v.level == operationLevel).value} para operação de ${this.operation} | Candle ${JSON.stringify(actualCandle)}`)
             this.breakup = true
             this.candleEvent = actualCandle
             return true
         }
 
         else if (this.correctedOnFibLevel(operationLevel, actualCandle)) {
-            console.log(`Candle ${JSON.stringify(actualCandle)} corrigu a fib no nível ${operationLevel} | ${this.fiboRetracements.find(v => v.level == operationLevel).value} para operação de ${this.operation}`)
+            console.log(`CORRIGIU na fib no nível ${operationLevel} | ${this.fiboRetracements.find(v => v.level == operationLevel).value} para operação de ${this.operation} | Candle ${JSON.stringify(actualCandle)} corrigu`)
             this.corrected = true
             this.candleEvent = actualCandle
             return true

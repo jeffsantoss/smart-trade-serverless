@@ -3,12 +3,14 @@ service: smart-trade
 custom:
   #secrets: ${ssm:/aws/reference/secretsmanager/${opt:stage, "dev"}/smart-trade/~true}      
   smartTradeSetupTable: ${opt:stage, "dev"}-smart-trade-setup
+  eventBus: smart-tarde-events
 
 provider:
   environment:
     NODE_ENV: ${sls:stage}
     SMART_TRADE_SETUP_TABLE: ${self:custom.smartTradeSetupTable}
     BINANCE_URL: https://api3.binance.com/api/v3/
+    SMART_TRADE_EVENT_BUS: ${self:custom.eventBus}
   name: aws
   runtime: nodejs12.x  
   memorySize: 256
@@ -33,6 +35,15 @@ functions:
     handler: app/handler.setupCreator
     name: ${sls:stage}-smart-trade-setup
     description: Create a Setup
+    events:
+      - eventBridge:
+          eventBus: ${self:custom.eventBus}
+          pattern:
+            source:
+              - setup.update
+            detail-type:
+              - operationFinished
+
     iamRoleStatements: 
       - Effect: "Allow"
         Action:
@@ -47,6 +58,7 @@ functions:
         Action:
           - dynamodb:PutItem
           - dynamodb:Scan
+          - dynamodb:UpdateItem
         Resource:  !GetAtt assetTrend.Arn  
 resources:
   Resources:    

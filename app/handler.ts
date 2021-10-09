@@ -12,12 +12,12 @@ export const setupCreator: Handler = (event: any, context: Context) => {
   console.log(`Function Name: ${context.functionName}`)
   console.log(`Event: ${JSON.stringify(event)}`)
 
-  return setupCreatorUseCase.create(JSON.parse(JSON.stringify(event.body)))
+  return setupCreatorUseCase.create(JSON.parse(JSON.stringify(event)))
 };
 
-export const setupUpdate: Handler = (event: any, context: Context) => {  
+export const setupAnalyze: Handler = (event: any, context: Context) => {  
   console.log(`Function Name: ${context.functionName}`)
   console.log(`Event: ${JSON.stringify(event)}`)
 
-  return setupUpdaterUseCase.update(event.asset)
+  return setupUpdaterUseCase.analyze(event.asset, event.interval)
 };

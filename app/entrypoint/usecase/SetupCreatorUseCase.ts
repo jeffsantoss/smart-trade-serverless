@@ -61,7 +61,6 @@ export class SetupCreatorUseCase {
 
     Promise.all(allAfter.map(c => {
       setup.occurredEventOnFib(FibonacciLevel._0236, FibonacciLevel._050, c)
-      setup.occurredEventOnFib(FibonacciLevel._0236, FibonacciLevel._050, c)
     }))
   }
 }
