@@ -15,7 +15,7 @@ provider:
     SMART_TRADE_EVENT_BUS: ${self:custom.eventBus}
     VALUE_TO_OPERATE: 50
     BINANCE_API_SECRET: ${self:custom.secrets.binanceApiSecret}
-    BINANCE_API_KEY: ${self:custom.secrets.binanceApiKey}        
+    BINANCE_API_KEY: ${self:custom.secrets.binanceApiKey}  
   name: aws
   runtime: nodejs12.x  
   memorySize: 256
@@ -75,7 +75,21 @@ functions:
             source:
               - setup.analyze
             detail-type:
-              - operationFinished    
+              - operationFinished
+  setupGetter:
+    handler: app/handler.setupGetter
+    name: ${sls:stage}-smart-trade-setup-getter
+    description: Get a current Setup
+    events:
+      - http:
+          path: api/smart-trade/setup
+          method: get          
+          cors: true    
+    iamRoleStatements: 
+      - Effect: "Allow"
+        Action:          
+          - dynamodb:Scan          
+        Resource:  !GetAtt assetTrend.Arn   
 resources:
   Resources:    
     assetTrend:

@@ -2,7 +2,7 @@ import { Inject, Service } from 'typedi';
 import { OperationType } from '../../domain/enums/OperationType';
 import { Status } from '../../domain/enums/Status';
 import { SetupRepository } from '../../infra/dataprovider/SetupRepository';
-import { SetupRequest } from '../request/SetupRequest';
+import { CreateSetupRequest } from '../request/CreateSetupRequest';
 import { v4 as uuidv4 } from 'uuid';
 import 'reflect-metadata';
 import { CandleService } from '../../infra/service/CandleService';
@@ -24,7 +24,7 @@ export class SetupCreatorUseCase {
   @Inject()
   private readonly fibonacciService: FibonacciService
 
-  async create(request: SetupRequest) {
+  async create(request: CreateSetupRequest) {
     console.log(`Request: ${JSON.stringify(request)}`)
 
     const graphic = new Graphic(await this.candleService.find({
