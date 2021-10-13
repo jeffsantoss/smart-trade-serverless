@@ -1,5 +1,4 @@
 import { Inject, Service } from 'typedi';
-import { Candle } from '../../domain/Candle';
 import { OperationType } from '../../domain/enums/OperationType';
 import { Status } from '../../domain/enums/Status';
 import { SetupRepository } from '../../infra/dataprovider/SetupRepository';

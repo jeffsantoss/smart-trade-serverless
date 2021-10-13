@@ -15,8 +15,11 @@
     "lint"
   ],
   "dependencies": {
+    "@types/crypto-js": "^4.0.2",
     "aws-sdk": "^2.982.0",
     "axios": "^0.22.0",
+    "axios-debug-log": "^0.8.4",
+    "crypto-js": "^4.1.1",
     "dotenv": "^8.2.0",
     "reflect-metadata": "^0.1.13",
     "serverless-plugin-lambda-dead-letter": "^1.2.1",

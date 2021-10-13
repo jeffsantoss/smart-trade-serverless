@@ -2,9 +2,7 @@ import { Inject, Service } from 'typedi';
 import { Status } from '../../domain/enums/Status';
 import { SetupRepository } from '../../infra/dataprovider/SetupRepository';
 import 'reflect-metadata';
-import { TickerService } from '../../infra/service/TickerService';
 import { FibonacciLevel } from '../../domain/enums/FibonacciLevel';
-import { SetupCreatorUseCase } from './SetupCreatorUseCase';
 import { OperationType } from '../../domain/enums/OperationType';
 import { CandleService } from '../../infra/service/CandleService';
 import { Asset } from '../../domain/enums/Asset';
@@ -12,7 +10,7 @@ import AWS from 'aws-sdk';
 import { Interval } from '../../domain/enums/Interval';
 
 @Service()
-export class SetupUpdaterUseCase {
+export class SetupAnalyzerUseCase {
 
   @Inject()
   private readonly setupRepository: SetupRepository
@@ -33,8 +31,6 @@ export class SetupUpdaterUseCase {
 
     const lastCandle = await this.candleService.getLastWithCurrentPrice(mostRecentSetup.asset, mostRecentSetup.interval)
 
-    console.log(`Candle Atual: ${JSON.stringify(lastCandle)}`)
-
     const ocurredGainOrLoss = mostRecentSetup.ocurredGainOrLoss(this.FIB_EXTENSION_OPERATE, this.FIB_LOSS, lastCandle.actualPrice)
 
     if (ocurredGainOrLoss) {
@@ -50,7 +46,7 @@ export class SetupUpdaterUseCase {
         Entries: [
           {
             EventBusName: process.env.SMART_TRADE_EVENT_BUS,
-            Source: 'setup.update',
+            Source: 'setup.analyze',
             DetailType: 'operationFinished',
             Detail: JSON.stringify(json)
           }
