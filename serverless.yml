@@ -12,7 +12,7 @@ provider:
     NODE_ENV: ${sls:stage}
     SMART_TRADE_SETUP_TABLE: ${self:custom.smartTradeSetupTable}
     BINANCE_URL: https://api3.binance.com/api/v3/
-    SMART_TRADE_EVENT_BUS: ${self:custom.eventBus}
+    SMART_TRADE_EVENT_BUS: smart-tarde-events
     VALUE_TO_OPERATE: 50
     BINANCE_API_SECRET: ${self:custom.secrets.binanceApiSecret}
     BINANCE_API_KEY: ${self:custom.secrets.binanceApiKey}  
@@ -75,7 +75,7 @@ functions:
             source:
               - setup.analyze
             detail-type:
-              - operationFinished
+              - entryToOperation
   setupGetter:
     handler: app/handler.setupGetter
     name: ${sls:stage}-smart-trade-setup-getter

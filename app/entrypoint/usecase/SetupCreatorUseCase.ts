@@ -11,6 +11,7 @@ import { FibonacciService } from '../../infra/service/FibonacciService';
 import { Setup } from '../../domain/Setup';
 import { FibonacciValue } from '../../domain/vo/FibonacciValue';
 import { FibonacciLevel } from '../../domain/enums/FibonacciLevel';
+import { CandleEvent } from '../../domain/vo/CandleEvent';
 
 @Service()
 export class SetupCreatorUseCase {
@@ -48,7 +49,7 @@ export class SetupCreatorUseCase {
       fiboExtensions = this.fibonacciService.calculateExtensionsValue(minCandle.lowPrice, maxCandle.highPrice)
     }    
 
-    const setupToCreate = new Setup(uuidv4(), request.asset, request.interval, maxCandle, minCandle, operation, Status.STARTED, false, false, false, false, await fiboRetracements, await fiboExtensions, Date.now())
+    const setupToCreate = new Setup(uuidv4(), request.asset, request.interval, maxCandle, minCandle, operation, Status.STARTED, false, false, false, false, await fiboRetracements, await fiboExtensions, Date.now(), new CandleEvent(null, null, null))
 
     await this.calculateRetroactively(graphic, setupToCreate)
 

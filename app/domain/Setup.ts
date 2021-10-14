@@ -39,7 +39,8 @@ export class Setup {
         correctionAnyFib: boolean,
         fiboRetracements: FibonacciValue[],
         fiboExtensions: FibonacciValue[],
-        createdAt: number
+        createdAt: number,
+        candleEvent: CandleEvent
     ) {
         this.id = id
         this.asset = asset
@@ -55,7 +56,7 @@ export class Setup {
         this.fiboRetracements = fiboRetracements
         this.fiboExtensions = fiboExtensions
         this.createdAt = createdAt
-        this.candleEvent = new CandleEvent(null, null, null)        
+        this.candleEvent = candleEvent   
     }
 
     ocurredGainOrLoss(extensionLevelGain: FibonacciLevel, fibLevelLoss: FibonacciLevel, actualPrice: number): boolean {
@@ -116,7 +117,7 @@ export class Setup {
     occurredEventOnFib(firstLevel: FibonacciLevel, operationLevel: FibonacciLevel, actualCandle: Candle): boolean {
         console.log(`Candle: ${JSON.stringify(actualCandle)}`)
 
-        if (this.candleEvent.candle && !this.candleEvent.candle.finished()) {
+        if (this.candleEvent.candle && !(this.candleEvent.candle.endTime <= Date.now())) {
             console.log("O candle que ocorreu o último evento ainda não foi finalizado")
             return false
         }

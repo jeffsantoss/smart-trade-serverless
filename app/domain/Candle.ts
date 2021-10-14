@@ -5,8 +5,8 @@ export class Candle {
     closePrice: number
     volumeOffered: number
     operatedVolume: number
-    startTime: Date
-    endTime: Date
+    startTime: number
+    endTime: number
     actualPrice: number
 
     constructor(
@@ -16,8 +16,8 @@ export class Candle {
         closePrice: number,
         volumeOffered: number,
         operatedVolume: number,
-        startTime: Date,
-        endTime: Date
+        startTime: number,
+        endTime: number
     ) {
         this.openPrice = openPrice
         this.highPrice = highPrice
@@ -28,9 +28,4 @@ export class Candle {
         this.startTime = startTime
         this.endTime = endTime
     }
-    
-    finished() {
-        return this.endTime <= new Date(Date.now())
-    }
-
 }

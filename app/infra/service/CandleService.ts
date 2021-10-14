@@ -41,7 +41,7 @@ export class CandleService {
 
         const data = response.data as Promise<String[][]>
 
-        return (await data).map<Candle>(data => new Candle(Number(data[1]), Number(data[2]), Number(data[3]), Number(data[4]), Number(data[5]), Number(data[9]), new Date(Number(data[0])), new Date(Number(data[6])))
+        return (await data).map<Candle>(data => new Candle(Number(data[1]), Number(data[2]), Number(data[3]), Number(data[4]), Number(data[5]), Number(data[9]), Number(data[0]), Number(data[6]))
         )
     }
 }

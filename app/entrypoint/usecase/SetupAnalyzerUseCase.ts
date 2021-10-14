@@ -59,8 +59,21 @@ export class SetupAnalyzerUseCase {
     const ocurredEventOnFib = mostRecentSetup.occurredEventOnFib(this.FIB_FIRST_LEVEL, this.FIB_LEVEL_OPERATE, lastCandle)
 
     if (mostRecentSetup.imReadyToOperate()) {
-      console.log("Pronto para comprar ou vender!!")
-      // enviar um evento para eventBridge com evento para compra ou venda
+
+      mostRecentSetup.status = Status.IN_OPERATION
+
+      const response = await new AWS.EventBridge().putEvents({
+        Entries: [
+          {
+            EventBusName: process.env.SMART_TRADE_EVENT_BUS,
+            Source: 'setup.analyze',
+            DetailType: 'entryToOperation',
+            Detail: JSON.stringify(mostRecentSetup)
+          }
+        ]
+      }).promise()
+
+      console.log(`Envento 'entryToOperation' publicado com sucesso ${JSON.stringify(response)}`)
     }
 
     if (ocurredEventOnFib) {

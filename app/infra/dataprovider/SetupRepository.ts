@@ -50,7 +50,7 @@ export class SetupRepository {
 
     const json: Setup = JSON.parse(JSON.stringify(mostRecent))
 
-    return new Setup(json.id, json.asset, json.interval, json.candleMax, json.candleMin, json.operation, json.status, json.breakup, json.corrected, json.breakupAnyFib, json.correctedAnyFib, json.fiboRetracements, json.fiboExtensions, json.createdAt)
+    return new Setup(json.id, json.asset, json.interval, json.candleMax, json.candleMin, json.operation, json.status, json.breakup, json.corrected, json.breakupAnyFib, json.correctedAnyFib, json.fiboRetracements, json.fiboExtensions, json.createdAt, json.candleEvent)
   }
 
   async update(entity: Setup) {
