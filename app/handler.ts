@@ -30,7 +30,12 @@ export const setupGetter: Handler = async (event: any, context: Context) => {
   console.log(`Function Name: ${context.functionName}`)
   console.log(`Event: ${JSON.stringify(event)}`)
 
-  return await setupGetterUseCase.getByAssetAndInterval(event.queryStringParameters.asset, event.queryStringParameters.interval)
+  const result = await setupGetterUseCase.getByAssetAndInterval(event.queryStringParameters.asset, event.queryStringParameters.interval)
+
+ return {
+    statusCode: 200,
+    body: JSON.stringify(result),
+  };
 };
 
 export const createOrder: Handler = (event: any, context: Context) => {

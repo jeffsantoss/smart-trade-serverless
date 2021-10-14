@@ -6,6 +6,7 @@ import { Status } from "./enums/Status"
 import { FibonacciValue } from "./vo/FibonacciValue"
 import { v4 as uuidv4 } from 'uuid';
 import { Interval } from "./enums/Interval"
+import { CandleEvent } from "./vo/CandleEvent"
 
 export class Setup {
     id: string = uuidv4()
@@ -22,7 +23,7 @@ export class Setup {
     fiboRetracements: FibonacciValue[]
     fiboExtensions: FibonacciValue[]
     createdAt: number
-    candleEvent: Candle
+    candleEvent: CandleEvent
 
     constructor(
         id: string,
@@ -54,6 +55,7 @@ export class Setup {
         this.fiboRetracements = fiboRetracements
         this.fiboExtensions = fiboExtensions
         this.createdAt = createdAt
+        this.candleEvent = new CandleEvent(null, null, null)        
     }
 
     ocurredGainOrLoss(extensionLevelGain: FibonacciLevel, fibLevelLoss: FibonacciLevel, actualPrice: number): boolean {
@@ -114,7 +116,7 @@ export class Setup {
     occurredEventOnFib(firstLevel: FibonacciLevel, operationLevel: FibonacciLevel, actualCandle: Candle): boolean {
         console.log(`Candle: ${JSON.stringify(actualCandle)}`)
 
-        if (this.candleEvent && !this.candleEvent.finished()) {
+        if (this.candleEvent.candle && !this.candleEvent.candle.finished()) {
             console.log("O candle que ocorreu o último evento ainda não foi finalizado")
             return false
         }
@@ -123,28 +125,28 @@ export class Setup {
             console.log(`ROMPEU a fib no nível ${firstLevel} | ${this.fiboRetracements.find(v => v.level == firstLevel).value} para operação de ${this.operation}`)
 
             this.breakupAnyFib = true
-            this.candleEvent = actualCandle
+            this.candleEvent = new CandleEvent(actualCandle, "BREAKUP_ANY_FB", Date.now())
             return true
         }
 
         else if (this.correctedOnFibLevel(firstLevel, actualCandle) && this.breakupAnyFib && !this.correctedAnyFib) {
             console.log(`CORRIGIU a fib no nível ${firstLevel} | ${this.fiboRetracements.find(v => v.level == firstLevel).value} para operação de ${this.operation}`)
             this.correctedAnyFib = true
-            this.candleEvent = actualCandle
+            this.candleEvent = new CandleEvent(actualCandle, "CORRECTED_ANY_FB", Date.now())
             return true
         }
 
         else if (this.breakupOnFibLevel(operationLevel, actualCandle) && !this.breakup) {
             console.log(`ROMPEU ${JSON.stringify(actualCandle)} na fib no nível ${operationLevel} | ${this.fiboRetracements.find(v => v.level == operationLevel).value} para operação de ${this.operation}`)
             this.breakup = true
-            this.candleEvent = actualCandle
+            this.candleEvent = new CandleEvent(actualCandle, "BREAKUP", Date.now())
             return true
         }
 
         else if (this.correctedOnFibLevel(operationLevel, actualCandle) && this.breakup && !this.corrected) {
             console.log(`CORRIGIU na fib no nível ${operationLevel} | ${this.fiboRetracements.find(v => v.level == operationLevel).value} para operação de ${this.operation}`)
             this.corrected = true
-            this.candleEvent = actualCandle
+            this.candleEvent = new CandleEvent(actualCandle, "CORRECTED", Date.now())
             return true
         }
 
