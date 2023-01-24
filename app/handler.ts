@@ -16,7 +16,7 @@ export const setupCreator: Handler = (event: any, context: Context) => {
   console.log(`Function Name: ${context.functionName}`)
   console.log(`Event: ${JSON.stringify(event)}`)
 
-  return setupCreatorUseCase.create(JSON.parse(JSON.stringify(event)))
+  return setupCreatorUseCase.create(JSON.parse(event.body))
 };
 
 export const setupAnalyze: Handler = (event: any, context: Context) => {
@@ -36,11 +36,4 @@ export const setupGetter: Handler = async (event: any, context: Context) => {
     statusCode: 200,
     body: JSON.stringify(result),
   };
-};
-
-export const createOrder: Handler = (event: any, context: Context) => {
-  console.log(`Function Name: ${context.functionName}`)
-  console.log(`Event: ${JSON.stringify(event)}`)
-
-  return orderCreatorUseCase.createBySetup(JSON.parse(JSON.stringify(event)))
 };

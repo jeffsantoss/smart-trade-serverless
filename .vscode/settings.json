@@ -1,6 +1,5 @@
 {
     "java.completion.enabled": false,
     "java.debug.settings.enableRunDebugCodeLens": false,
-    "java.test.editor.enableShortcuts": false,
-    "editor.fontSize": 11
+    "java.test.editor.enableShortcuts": false
 }

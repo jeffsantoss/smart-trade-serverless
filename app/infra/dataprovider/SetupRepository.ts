@@ -40,13 +40,9 @@ export class SetupRepository {
 
     const itens = (await this.getDynamoClient().scan(params).promise()).Items
 
-    console.log(`Itens encontrados com status ${Status.STARTED} e ${Status.IN_OPERATION}: ${JSON.stringify(itens)}`)
-
     const mostRecent = itens.reduce((a, b) => {
       return new Date(a.createdAt) > new Date(b.createdAt) ? a : b;
     });
-
-    console.log(`Último Setup encontrado: ${JSON.stringify(mostRecent)}`)
 
     const json: Setup = JSON.parse(JSON.stringify(mostRecent))
 

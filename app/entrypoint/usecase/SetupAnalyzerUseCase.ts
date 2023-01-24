@@ -2,12 +2,13 @@ import { Inject, Service } from 'typedi';
 import { Status } from '../../domain/enums/Status';
 import { SetupRepository } from '../../infra/dataprovider/SetupRepository';
 import 'reflect-metadata';
-import { FibonacciLevel } from '../../domain/enums/FibonacciLevel';
 import { OperationType } from '../../domain/enums/OperationType';
 import { CandleService } from '../../infra/service/CandleService';
 import { Asset } from '../../domain/enums/Asset';
 import AWS from 'aws-sdk';
 import { Interval } from '../../domain/enums/Interval';
+import { OrderCreatorUseCase } from './OrderCreatorUseCase';
+import { FIB_LEVEL_GAIN, FIB_FIRST_LEVEL, FIB_LEVEL_BREAK_CORRECTION_OPERATE, FIB_LEVEL_OPERATE, FIB_LOSS } from '../../domain/Contants';
 
 @Service()
 export class SetupAnalyzerUseCase {
@@ -18,10 +19,10 @@ export class SetupAnalyzerUseCase {
   @Inject()
   private readonly candleService: CandleService
 
-  private readonly FIB_EXTENSION_OPERATE = FibonacciLevel._0236
-  private readonly FIB_LOSS = FibonacciLevel._0786
-  private readonly FIB_LEVEL_OPERATE = FibonacciLevel._050
-  private readonly FIB_FIRST_LEVEL = FibonacciLevel._0236
+  @Inject()
+  private readonly orderCreatorUseCase: OrderCreatorUseCase
+
+
 
   async analyze(asset: Asset, interval: Interval) {
     const mostRecentSetup = await this.setupRepository.findMostRecentStartedOrInOperation(asset, interval)
@@ -31,7 +32,7 @@ export class SetupAnalyzerUseCase {
 
     const lastCandle = await this.candleService.getLastWithCurrentPrice(mostRecentSetup.asset, mostRecentSetup.interval)
 
-    const ocurredGainOrLoss = mostRecentSetup.ocurredGainOrLoss(this.FIB_EXTENSION_OPERATE, this.FIB_LOSS, lastCandle.actualPrice)
+    const ocurredGainOrLoss = mostRecentSetup.ocurredGainOrLoss(FIB_LEVEL_GAIN, FIB_LOSS, lastCandle.actualPrice)
 
     if (ocurredGainOrLoss) {
       this.setupRepository.update(mostRecentSetup)
@@ -56,24 +57,13 @@ export class SetupAnalyzerUseCase {
       return
     }
 
-    const ocurredEventOnFib = mostRecentSetup.occurredEventOnFib(this.FIB_FIRST_LEVEL, this.FIB_LEVEL_OPERATE, lastCandle)
+    const ocurredEventOnFib = mostRecentSetup.occurredEventOnFib(FIB_FIRST_LEVEL, FIB_LEVEL_BREAK_CORRECTION_OPERATE, FIB_LEVEL_OPERATE, lastCandle)
 
     if (mostRecentSetup.imReadyToOperate()) {
 
       mostRecentSetup.status = Status.IN_OPERATION
 
-      const response = await new AWS.EventBridge().putEvents({
-        Entries: [
-          {
-            EventBusName: process.env.SMART_TRADE_EVENT_BUS,
-            Source: 'setup.analyze',
-            DetailType: 'entryToOperation',
-            Detail: JSON.stringify(mostRecentSetup)
-          }
-        ]
-      }).promise()
-
-      console.log(`Envento 'entryToOperation' publicado com sucesso ${JSON.stringify(response)}`)
+      this.orderCreatorUseCase.createBySetup(mostRecentSetup)            
     }
 
     if (ocurredEventOnFib) {

@@ -12,6 +12,7 @@ import { Setup } from '../../domain/Setup';
 import { FibonacciValue } from '../../domain/vo/FibonacciValue';
 import { FibonacciLevel } from '../../domain/enums/FibonacciLevel';
 import { CandleEvent } from '../../domain/vo/CandleEvent';
+import { FIB_FIRST_LEVEL, FIB_LEVEL_BREAK_CORRECTION_OPERATE, FIB_LEVEL_OPERATE } from '../../domain/Contants';
 
 @Service()
 export class SetupCreatorUseCase {
@@ -60,7 +61,7 @@ export class SetupCreatorUseCase {
     const allAfter = graphic.getAllAfterMaxOrMinCandleAccordingTheOperation(setup.operation)
 
     Promise.all(allAfter.map(c => {
-      setup.occurredEventOnFib(FibonacciLevel._0236, FibonacciLevel._050, c)
+      setup.occurredEventOnFib(FIB_FIRST_LEVEL, FIB_LEVEL_BREAK_CORRECTION_OPERATE, FIB_LEVEL_OPERATE, c)
     }))
   }
 }
